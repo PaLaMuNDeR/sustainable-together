@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+ #Django application
+  back-end:
+    build: .
+    #Starting the server
+    command: bash -c "cd st/back-end/ && python manage.py migrate --noinput &&
+      gunicorn calories.wsgi:application -w 2 -b :8000 --timeout 120"
+    volumes:
+      - ./web:/web
+      - ./web/locale:/web/locale
+    env_file:
+      - .env
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  front-end:
+    build: ./web/st/front-end/
+    #Starting the server
+    command: npm start
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+ #Postgres DB
+  db:
+    container_name: postgres_st
+    restart: always
+    image: postgres:9.6.5
+    volumes:
+      - ./config/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data/
+    env_file: .env
+    expose:
+      - "5432"
+
+volumes:
+  postgres_data:
