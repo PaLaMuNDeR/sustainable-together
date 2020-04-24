@@ -5,8 +5,8 @@ services:
   back-end:
     build: .
     #Starting the server
-    command: bash -c "cd st/back-end/ && python manage.py migrate --noinput &&
-      gunicorn calories.wsgi:application -w 2 -b :8000 --timeout 120"
+    command: bash -c "cd st/back-end/ && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
+#      gunicorn st.wsgi:application -w 2 -b :8000 --timeout 120"
     volumes:
       - ./web:/web
       - ./web/locale:/web/locale
@@ -34,6 +34,7 @@ services:
       - .env
     depends_on:
       - db
+      - back-end
 
  #Postgres DB
   db:
